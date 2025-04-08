@@ -20,9 +20,6 @@ const articuloRuta = require("./rutas/ArticuloRuta");
 
 app.use("/api", articuloRuta);
 
-//Ruta de prueba
-app.get("/probando");
-
 //Crear servidor y escuchar rutas
 app.listen(port, () => {
   console.log("servidor corriendo en el puerto " + port);
