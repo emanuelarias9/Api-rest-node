@@ -1,26 +1,45 @@
 const { conexion } = require("./database/conexion");
 const express = require("express");
 const cors = require("cors");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 conexion();
 
-//Crear servidor node
+// Crear servidor node
 const app = express();
 const port = 3900;
 
-//Configurar cors
+// Configuración de Swagger
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "API Blog",
+      version: "1.0.0",
+      description: "Documentación para la API de mi Blog",
+    },
+    servers: [{ url: `http://localhost:${port}` }],
+  },
+  apis: ["./rutas/*.js", "./controllers/*.js"],
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+
+// Middlewares
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-//convertir body a objeto js
-app.use(express.json()); //recibiendo datos con content-type app/json
-app.use(express.urlencoded({ extended: true })); //recibiendo datos form-urlencoded
+// Ruta de documentación Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-//RUTAS
+// Rutas de la API
 const articuloRuta = require("./rutas/ArticuloRuta");
-
 app.use("/api", articuloRuta);
 
-//Crear servidor y escuchar rutas
+// Iniciar servidor y escuchar rutas
 app.listen(port, () => {
-  console.log("servidor corriendo en el puerto " + port);
+  console.log(`Servidor corriendo en el puerto ${port}`);
+  console.log(`Documentación disponible en http://localhost:${port}/api-docs`);
 });
