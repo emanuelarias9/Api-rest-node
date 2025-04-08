@@ -2,8 +2,6 @@ const { conexion } = require("./database/conexion");
 const express = require("express");
 const cors = require("cors");
 
-console.log("alexa t");
-
 conexion();
 
 //Crear servidor node
@@ -14,9 +12,16 @@ const port = 3900;
 app.use(cors());
 
 //convertir body a objeto js
-app.use(express.json());
+app.use(express.json()); //recibiendo datos con content-type app/json
+app.use(express.urlencoded({ extended: true })); //recibiendo datos form-urlencoded
 
-//Crear rutas
+//RUTAS
+const articuloRuta = require("./rutas/ArticuloRuta");
+
+app.use("/api", articuloRuta);
+
+//Ruta de prueba
+app.get("/probando");
 
 //Crear servidor y escuchar rutas
 app.listen(port, () => {
