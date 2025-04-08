@@ -1,4 +1,5 @@
 const validator = require("validator");
+const Articulo = require("../models/Articulo");
 
 const prueba = (req, res) => {
   return res.status(200).json({
@@ -31,9 +32,29 @@ const crear = (req, res) => {
     });
   }
 
-  return res.status(200).json({
-    mensaje: "Guardado",
-  });
+  const articulo = new Articulo(parametros);
+
+  articulo
+    .save()
+    .then((articuloGuardado) => {
+      if (!articuloGuardado) {
+        return res.status(400).json({
+          status: "Error",
+          mensaje: "Error al guardar el articulo",
+        });
+      }
+
+      return res.status(200).json({
+        status: "Success",
+        articulo: articuloGuardado,
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({
+        status: "Error",
+        error,
+      });
+    });
 };
 
 module.exports = {
