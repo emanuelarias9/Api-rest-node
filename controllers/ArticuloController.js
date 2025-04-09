@@ -112,7 +112,7 @@ const Articulo = require("../models/Articulo");
  *                   mensaje: "Error interno del servidor"
  *                   error: "Mensaje de error detallado"
  */
-const crearArticulo = async (req, res) => {
+const CrearArticulo = async (req, res) => {
   let parametros = req.body;
 
   // Validación de datos
@@ -128,8 +128,7 @@ const crearArticulo = async (req, res) => {
   } catch (error) {
     return res.status(400).json({
       status: "Error",
-      mensaje: "Faltan datos o son inválidos",
-      error: error.message,
+      mensaje: "Faltan datos o son inválidos: " + error.message,
     });
   }
 
@@ -152,8 +151,7 @@ const crearArticulo = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "Error",
-      mensaje: "Error interno del servidor",
-      error: error.message,
+      mensaje: "Error interno del servidor: " + error.message,
     });
   }
 };
@@ -240,7 +238,7 @@ const crearArticulo = async (req, res) => {
  *                   type: string
  *                   example: "Mensaje de error detallado"
  */
-const consultaArticulos = async (req, res) => {
+const ConsultaArticulos = async (req, res) => {
   try {
     let cantidad = req.query.cantidad;
     let query = {};
@@ -256,7 +254,6 @@ const consultaArticulos = async (req, res) => {
       return res.status(404).json({
         status: "Error",
         mensaje: "No se han encontrado articulos",
-        error: error.message,
       });
     }
 
@@ -269,7 +266,7 @@ const consultaArticulos = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "Error",
-      error: error.message,
+      mensaje: error.message,
     });
   }
 };
@@ -331,7 +328,6 @@ const ObtenerArticulo = async (req, res) => {
       return res.status(404).json({
         status: "Error",
         mensaje: "No se ha encontrado el articulo",
-        error: error.message,
       });
     }
 
@@ -343,13 +339,99 @@ const ObtenerArticulo = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "Error",
-      error: error.message,
+      mensaje: error.message,
+    });
+  }
+};
+/**
+ * @swagger
+ * /api/articulo/{id}:
+ *   delete:
+ *     summary: Eliminar un artículo por ID
+ *     tags: [Artículos]
+ *     description: Elimina un artículo específico de la base de datos usando su ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: mongo-id
+ *           example: "507f1f77bcf86cd799439011"
+ *         description: ID del artículo a eliminar
+ *     responses:
+ *       200:
+ *         description: Artículo eliminado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Success"
+ *                 articuloEliminado:
+ *                   $ref: '#/components/schemas/Articulo'
+ *             examples:
+ *               respuestaExitosa:
+ *                 value:
+ *                   status: "Success"
+ *                   articuloEliminadoId: "507f1f77bcf86cd799439011"
+ 
+ *       404:
+ *         description: Artículo no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Error"
+ *                 mensaje:
+ *                   type: string
+ *                   example: "No se ha encontrado el articulo a eliminar"
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Error"
+ *                 mensaje:
+ *                   type: string
+ *                   example: "Error al eliminar el artículo"
+ */
+const EliminarArticulo = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let articuloEliminado = await Articulo.findOneAndDelete({ _id: id }).exec();
+    if (!articuloEliminado) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado el articulo a eliminar",
+      });
+    }
+
+    //OK
+    return res.status(200).json({
+      status: "Success",
+      articuloEliminadoId: articuloEliminado._id,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "Error",
+      mensaje: error.message,
     });
   }
 };
 
 module.exports = {
-  consultaArticulos,
+  ConsultaArticulos,
+  EliminarArticulo,
   ObtenerArticulo,
-  crearArticulo,
+  CrearArticulo,
 };
