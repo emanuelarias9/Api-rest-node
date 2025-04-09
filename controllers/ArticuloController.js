@@ -113,6 +113,12 @@ const crear = async (req, res) => {
  *   get:
  *     summary: Listar todos los artículos
  *     tags: [Artículos]
+ *     parameters:
+ *       - in: query
+ *         name: cantidad
+ *         schema:
+ *           type: integer
+ *         description: Cantidad máxima de artículos a devolver
  *     responses:
  *       200:
  *         description: Lista de artículos
@@ -129,7 +135,16 @@ const crear = async (req, res) => {
  */
 const consultaArticulos = async (req, res) => {
   try {
-    let articulos = await Articulo.find({}).exec();
+    let cantidad = req.query.cantidad;
+    let query = {};
+    if (cantidad) {
+      query = Articulo.find({}).sort({ fecha: -1 }).limit(parseInt(cantidad));
+    } else {
+      query = Articulo.find({}).sort({ fecha: -1 });
+    }
+
+    let articulos = await query.exec();
+
     if (!articulos) {
       return res.status(404).json({
         status: "Error",
@@ -140,6 +155,8 @@ const consultaArticulos = async (req, res) => {
 
     return res.status(200).json({
       status: "Success",
+      parametrosUrl: req.params.ultimos,
+      cantidad: articulos.length,
       articulos,
     });
   } catch (error) {
