@@ -7,7 +7,8 @@ const ArticuloController = require("../controllers/ArticuloController");
  *   name: Artículos
  *   description: Endpoints para gestión de artículos
  */
-router.post("/crear", ArticuloController.crear);
+router.post("/crear", ArticuloController.crearArticulo);
 router.get("/articulos", ArticuloController.consultaArticulos);
+router.get("/articulo/:id", ArticuloController.ObtenerArticulo);
 
 module.exports = router;
