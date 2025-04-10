@@ -18,7 +18,7 @@ const swaggerOptions = {
       title: "API Blog",
       version: "1.0.0",
       description:
-        "Documentación para la Api Rest de mi Blog creada con NodeJS, expressJS y mongoose para",
+        "Documentación para la Api Rest de mi Blog creada con NodeJS, expressJS y mongoose",
     },
     servers: [{ url: `http://localhost:${port}` }],
   },

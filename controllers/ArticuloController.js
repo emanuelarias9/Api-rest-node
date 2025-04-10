@@ -1,4 +1,5 @@
 const validator = require("validator");
+/** @type {import("mongoose").Model} */
 const Articulo = require("../models/Articulo");
 /**
  * @swagger
