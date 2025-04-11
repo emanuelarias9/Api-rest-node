@@ -1,4 +1,4 @@
-const validator = require("validator");
+const { validarArticulo } = require("../helpers/validarArticulo");
 /** @type {import("mongoose").Model} */
 const Articulo = require("../models/Articulo");
 /**
@@ -38,7 +38,7 @@ const Articulo = require("../models/Articulo");
 
 /**
  * @swagger
- * /api/articulos:
+ * /api/articulo:
  *   post:
  *     summary: Crear un nuevo artículo
  *     tags: [Artículos]
@@ -118,21 +118,13 @@ const CrearArticulo = async (req, res) => {
 
   // Validación de datos
   try {
-    let validarTitulo =
-      !validator.isEmpty(parametros.titulo) &&
-      validator.isLength(parametros.titulo, { min: 5, max: undefined });
-    let validarContenido = !validator.isEmpty(parametros.contenido);
-
-    if (!validarTitulo || !validarContenido) {
-      throw new Error("Datos inválidos");
-    }
+    validarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
       status: "Error",
-      mensaje: "Faltan datos o son inválidos: " + error.message,
+      mensaje: error.message,
     });
   }
-
   try {
     const articulo = new Articulo(parametros);
     const articuloGuardado = await articulo.save();
@@ -277,9 +269,9 @@ const ConsultaArticulos = async (req, res) => {
  * @swagger
  * /api/articulo/{id}:
  *   get:
- *     summary: Obtener un artículo específico por ID
+ *     summary: Obtener un artículo por su ID
  *     tags: [Artículos]
- *     description: Retorna un único artículo basado en su ID de MongoDB
+ *     description: Retorna un único artículo específico de la base de datos usando su ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -351,7 +343,7 @@ const ObtenerArticulo = async (req, res) => {
  * @swagger
  * /api/articulo/{id}:
  *   delete:
- *     summary: Eliminar un artículo por ID
+ *     summary: Eliminar un artículo por su ID
  *     tags: [Artículos]
  *     description: Elimina un artículo específico de la base de datos usando su ID
  *     parameters:
@@ -437,9 +429,9 @@ const EliminarArticulo = async (req, res) => {
  * @swagger
  * /api/articulo/{id}:
  *   put:
- *     summary: Actualizar un artículo existente
+ *     summary: Actualizar un artículo existente por su ID
  *     tags: [Artículos]
- *     description: Actualiza un artículo por su ID con nuevos datos validados
+ *     description: Actualiza un artículo específico de la base de datos usando su ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -497,20 +489,14 @@ const ActualizarArticulo = async (req, res) => {
   let parametros = req.body;
   // Validación de datos
   try {
-    let validarTitulo =
-      !validator.isEmpty(parametros.titulo) &&
-      validator.isLength(parametros.titulo, { min: 5, max: undefined });
-    let validarContenido = !validator.isEmpty(parametros.contenido);
-
-    if (!validarTitulo || !validarContenido) {
-      throw new Error("Datos inválidos");
-    }
+    validarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
       status: "Error",
-      mensaje: "Faltan datos o son inválidos: " + error.message,
+      mensaje: error.message,
     });
   }
+
   // Actualizar el artículo
   try {
     let articuloActualizado = await Articulo.findByIdAndUpdate(

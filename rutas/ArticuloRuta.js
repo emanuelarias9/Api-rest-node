@@ -7,7 +7,7 @@ const ArticuloController = require("../controllers/ArticuloController");
  *   name: Artículos
  *   description: Endpoints para gestión de artículos
  */
-router.post("/crear", ArticuloController.CrearArticulo);
+router.post("/articulo", ArticuloController.CrearArticulo);
 router.get("/articulos", ArticuloController.ConsultaArticulos);
 router.get("/articulo/:id", ArticuloController.ObtenerArticulo);
 router.delete("/articulo/:id", ArticuloController.EliminarArticulo);
