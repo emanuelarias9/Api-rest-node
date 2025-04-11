@@ -156,6 +156,7 @@ const CrearArticulo = async (req, res) => {
     });
   }
 };
+
 /**
  * @swagger
  * /api/articulos:
@@ -271,6 +272,7 @@ const ConsultaArticulos = async (req, res) => {
     });
   }
 };
+
 /**
  * @swagger
  * /api/articulo/{id}:
@@ -344,6 +346,7 @@ const ObtenerArticulo = async (req, res) => {
     });
   }
 };
+
 /**
  * @swagger
  * /api/articulo/{id}:
@@ -430,7 +433,114 @@ const EliminarArticulo = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/articulo/{id}:
+ *   put:
+ *     summary: Actualizar un artículo existente
+ *     tags: [Artículos]
+ *     description: Actualiza un artículo por su ID con nuevos datos validados
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: mongo-id
+ *           example: "507f1f77bcf86cd799439011"
+ *         description: ID del artículo a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Articulo'
+ *           examples:
+ *             articuloActualizado:
+ *               value:
+ *                 titulo: "Título actualizado"
+ *                 contenido: "Contenido actualizado del artículo"
+ *     responses:
+ *       200:
+ *         description: Artículo actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Success"
+ *                 articuloActualizado:
+ *                   $ref: '#/components/schemas/Articulo'
+ *       400:
+ *         description: Error en los datos de entrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Artículo no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+const ActualizarArticulo = async (req, res) => {
+  let articuloId = req.params.id;
+  let parametros = req.body;
+  // Validación de datos
+  try {
+    let validarTitulo =
+      !validator.isEmpty(parametros.titulo) &&
+      validator.isLength(parametros.titulo, { min: 5, max: undefined });
+    let validarContenido = !validator.isEmpty(parametros.contenido);
+
+    if (!validarTitulo || !validarContenido) {
+      throw new Error("Datos inválidos");
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: "Error",
+      mensaje: "Faltan datos o son inválidos: " + error.message,
+    });
+  }
+  // Actualizar el artículo
+  try {
+    let articuloActualizado = await Articulo.findByIdAndUpdate(
+      articuloId,
+      parametros,
+      { new: true }
+    ).exec();
+
+    if (!articuloActualizado) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado el articulo a actualizar",
+      });
+    }
+
+    //OK
+    return res.status(200).json({
+      status: "Success",
+      articuloActualizado,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "Error",
+      mensaje: error.message,
+    });
+  }
+};
+
 module.exports = {
+  ActualizarArticulo,
   ConsultaArticulos,
   EliminarArticulo,
   ObtenerArticulo,

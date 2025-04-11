@@ -11,5 +11,6 @@ router.post("/crear", ArticuloController.CrearArticulo);
 router.get("/articulos", ArticuloController.ConsultaArticulos);
 router.get("/articulo/:id", ArticuloController.ObtenerArticulo);
 router.delete("/articulo/:id", ArticuloController.EliminarArticulo);
+router.put("/articulo/:id", ArticuloController.ActualizarArticulo);
 
 module.exports = router;
