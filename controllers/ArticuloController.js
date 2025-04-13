@@ -1,5 +1,7 @@
 const { ValidarArticulo } = require("../helpers/validarArticulo");
 const { ValidarImagen, EliminarImagen } = require("../helpers/validarImagen");
+const fs = require("fs");
+const path = require("path");
 /** @type {import("mongoose").Model} */
 const Articulo = require("../models/Articulo");
 /**
@@ -618,7 +620,7 @@ const ActualizarArticulo = async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-const ArticuloImagen = async (req, res) => {
+const ActualizarImagen = async (req, res) => {
   let file = req.file;
   let articuloId = req.params.id;
   // Validar la imagen
@@ -675,11 +677,68 @@ const ArticuloImagen = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/articulo/imagen/{imagen}:
+ *   get:
+ *     summary: Obtener imagen de un artículo
+ *     tags:
+ *       - Artículos
+ *     description: Devuelve el archivo de imagen asociado a un artículo si existe.
+ *     parameters:
+ *       - in: path
+ *         name: imagen
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Nombre del archivo de imagen (ejemplo: 'foto.jpg')"
+ *     responses:
+ *       200:
+ *         description: Imagen encontrada y enviada exitosamente
+ *         content:
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           image/jpeg:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Imagen no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 mensaje:
+ *                   type: string
+ */
+
+const ObtenerImagen = (req, res) => {
+  let file = req.params.imagen;
+  let ruta = "./public/images/articulos/" + file;
+  // Verificar si el archivo existe
+  fs.stat(ruta, (error) => {
+    if (error) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado la imagen",
+      });
+    }
+    // Si existe, enviar el archivo
+    res.sendFile(path.resolve(ruta));
+  });
+};
+
 module.exports = {
   ActualizarArticulo,
   ConsultaArticulos,
   EliminarArticulo,
+  ActualizarImagen,
   ObtenerArticulo,
-  ArticuloImagen,
+  ObtenerImagen,
   CrearArticulo,
 };

@@ -29,6 +29,7 @@ router.put(
 router.put(
   "/articulo/imagen/:id",
   [uploads.single("file")],
-  ArticuloController.ArticuloImagen
+  ArticuloController.ActualizarImagen
 );
+router.get("/articulo/imagen/:imagen", ArticuloController.ObtenerImagen);
 module.exports = router;
