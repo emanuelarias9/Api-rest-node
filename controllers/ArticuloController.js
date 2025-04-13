@@ -434,7 +434,7 @@ const EliminarArticulo = async (req, res) => {
     //OK
     return res.status(200).json({
       status: "Success",
-      articuloEliminadoId: articuloEliminado._id,
+      articuloEliminado: articuloEliminado.titulo,
     });
   } catch (error) {
     return res.status(500).json({
@@ -506,7 +506,7 @@ const EliminarArticulo = async (req, res) => {
 const ActualizarArticulo = async (req, res) => {
   let articuloId = req.params.id;
   let parametros = req.body;
-  // parametros.imagen = req.file.filename;
+  let file = req.file;
   console.log(parametros);
   // Validación de datos
   try {
@@ -522,8 +522,12 @@ const ActualizarArticulo = async (req, res) => {
   try {
     let articuloActualizado = await Articulo.findByIdAndUpdate(
       { _id: articuloId },
-      parametros,
-      { new: true }
+      {
+        titulo: parametros.titulo,
+        contenido: parametros.contenido,
+        imagen: file.filename,
+      },
+      { new: false } // Cambiar a true si se desea el documento actualizado
     ).exec();
 
     if (!articuloActualizado) {
@@ -533,6 +537,7 @@ const ActualizarArticulo = async (req, res) => {
       });
     }
     // Eliminar la imagen anterior si existe
+    console.log(articuloActualizado.imagen);
     try {
       EliminarImagen(articuloActualizado.imagen);
     } catch (error) {
@@ -544,7 +549,7 @@ const ActualizarArticulo = async (req, res) => {
     //OK
     return res.status(200).json({
       status: "Success",
-      articuloActualizado,
+      articuloActualizado: parametros.titulo,
     });
   } catch (error) {
     return res.status(500).json({
@@ -554,6 +559,65 @@ const ActualizarArticulo = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/articulo/imagen/{id}:
+ *   put:
+ *     summary: Subir y asociar una imagen a un artículo existente
+ *     tags: [Artículos]
+ *     description: Valida, actualiza y reemplaza la imagen de un artículo por su ID. También elimina la imagen anterior del servidor si existe.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del artículo al que se le asociará la imagen
+ *         schema:
+ *           type: string
+ *           format: mongo-id
+ *           example: "507f1f77bcf86cd799439011"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Archivo de imagen a subir
+ *     responses:
+ *       200:
+ *         description: Imagen actualizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Success"
+ *                 articuloActualizado:
+ *                   $ref: '#/components/schemas/Articulo'
+ *       400:
+ *         description: Validación fallida o archivo inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Artículo no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error al actualizar o eliminar la imagen
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 const ArticuloImagen = async (req, res) => {
   let file = req.file;
   let articuloId = req.params.id;

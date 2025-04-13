@@ -27,7 +27,7 @@ router.put(
   ArticuloController.ActualizarArticulo
 );
 router.put(
-  "/articuloImagen/:id",
+  "/articulo/imagen/:id",
   [uploads.single("file")],
   ArticuloController.ArticuloImagen
 );
