@@ -1,4 +1,5 @@
-const { validarArticulo } = require("../helpers/validarArticulo");
+const { ValidarArticulo } = require("../helpers/validarArticulo");
+const { ValidarImagen, EliminarImagen } = require("../helpers/validarImagen");
 /** @type {import("mongoose").Model} */
 const Articulo = require("../models/Articulo");
 /**
@@ -118,7 +119,7 @@ const CrearArticulo = async (req, res) => {
 
   // Validación de datos
   try {
-    validarArticulo(parametros);
+    ValidarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
       status: "Error",
@@ -404,11 +405,29 @@ const ObtenerArticulo = async (req, res) => {
 const EliminarArticulo = async (req, res) => {
   try {
     let id = req.params.id;
+    let articulo = await Articulo.findById(id).exec();
+    if (!articulo) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado el articulo",
+      });
+    }
+
     let articuloEliminado = await Articulo.findOneAndDelete({ _id: id }).exec();
     if (!articuloEliminado) {
       return res.status(404).json({
         status: "Error",
         mensaje: "No se ha encontrado el articulo a eliminar",
+      });
+    }
+
+    // Eliminar la imagen anterior si existe
+    try {
+      EliminarImagen(articulo.imagen);
+    } catch (error) {
+      return res.status(500).json({
+        status: "Error",
+        mensaje: "Error al eliminar la iamgen: " + error.message,
       });
     }
 
@@ -487,20 +506,22 @@ const EliminarArticulo = async (req, res) => {
 const ActualizarArticulo = async (req, res) => {
   let articuloId = req.params.id;
   let parametros = req.body;
+  // parametros.imagen = req.file.filename;
+  console.log(parametros);
   // Validación de datos
   try {
-    validarArticulo(parametros);
+    ValidarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
       status: "Error",
-      mensaje: error.message,
+      mensaje: "Error al Validar Articulo " + error.message,
     });
   }
 
   // Actualizar el artículo
   try {
     let articuloActualizado = await Articulo.findByIdAndUpdate(
-      articuloId,
+      { _id: articuloId },
       parametros,
       { new: true }
     ).exec();
@@ -509,6 +530,71 @@ const ActualizarArticulo = async (req, res) => {
       return res.status(404).json({
         status: "Error",
         mensaje: "No se ha encontrado el articulo a actualizar",
+      });
+    }
+    // Eliminar la imagen anterior si existe
+    try {
+      EliminarImagen(articuloActualizado.imagen);
+    } catch (error) {
+      return res.status(500).json({
+        status: "Error",
+        mensaje: "Error al eliminar la imagen: " + error.message,
+      });
+    }
+    //OK
+    return res.status(200).json({
+      status: "Success",
+      articuloActualizado,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "Error",
+      mensaje: error.message,
+    });
+  }
+};
+
+const ArticuloImagen = async (req, res) => {
+  let file = req.file;
+  let articuloId = req.params.id;
+  // Validar la imagen
+  try {
+    ValidarImagen(file);
+  } catch (error) {
+    return res.status(400).json({
+      status: "Error",
+      mensaje: error.message,
+    });
+  }
+  let articulo = await Articulo.findById(articuloId).exec();
+  if (!articulo) {
+    return res.status(404).json({
+      status: "Error",
+      mensaje: "No se ha encontrado el articulo",
+    });
+  }
+  // Actualizar el artículo
+  try {
+    let articuloActualizado = await Articulo.findByIdAndUpdate(
+      { _id: articuloId },
+      { imagen: file.filename },
+      { new: true }
+    ).exec();
+
+    if (!articuloActualizado) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado el articulo a actualizar",
+      });
+    }
+
+    // Eliminar la imagen anterior si existe
+    try {
+      EliminarImagen(articulo.imagen);
+    } catch (error) {
+      return res.status(500).json({
+        status: "Error",
+        mensaje: "Error al eliminar la iamgen: " + error.message,
       });
     }
 
@@ -530,5 +616,6 @@ module.exports = {
   ConsultaArticulos,
   EliminarArticulo,
   ObtenerArticulo,
+  ArticuloImagen,
   CrearArticulo,
 };

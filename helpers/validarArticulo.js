@@ -1,6 +1,6 @@
 const validator = require("validator");
 
-const validarArticulo = (parametros) => {
+const ValidarArticulo = (parametros) => {
   let validarTitulo =
     !validator.isEmpty(parametros.titulo) &&
     validator.isLength(parametros.titulo, { min: 5, max: undefined });
@@ -14,4 +14,4 @@ const validarArticulo = (parametros) => {
     );
   }
 };
-module.exports = { validarArticulo };
+module.exports = { ValidarArticulo };
