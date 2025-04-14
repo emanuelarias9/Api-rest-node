@@ -156,19 +156,39 @@ const CrearArticulo = async (req, res) => {
  * @swagger
  * /api/articulos:
  *   get:
- *     summary: Obtener el listado de artículos
+ *     summary: Listar o filtrar artículos
  *     tags: [Artículos]
- *     description: Retorna un listado de artículos ordenados por fecha descendente, con opción de límite
+ *     description: Retorna todos los artículos o aquellos que coincidan con los filtros opcionales enviados por query string.
  *     parameters:
+ *       - in: query
+ *         name: titulo
+ *         schema:
+ *           type: string
+ *         description: título del artículo
+ *       - in: query
+ *         name: contenido
+ *         schema:
+ *           type: string
+ *         description: contenido del artículo
+ *       - in: query
+ *         name: fecha
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: fecha
+ *       - in: query
+ *         name: imagen
+ *         schema:
+ *           type: string
+ *         description: Nombre exacto de la imagen ("foto.jpg")
  *       - in: query
  *         name: cantidad
  *         schema:
  *           type: integer
- *           minimum: 1
- *         description: Cantidad máxima de artículos a retornar
+ *         description: Límite máximo de artículos a retornar
  *     responses:
  *       200:
- *         description: Listado de artículos exitoso
+ *         description: Artículos encontrados exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -176,85 +196,61 @@ const CrearArticulo = async (req, res) => {
  *               properties:
  *                 status:
  *                   type: string
- *                   example: "Success"
+ *                   example: Success
  *                 cantidad:
  *                   type: integer
- *                   description: Número de artículos retornados
- *                   example: 5
  *                 articulos:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Articulo'
- *             examples:
- *               respuestaCompleta:
- *                 value:
- *                   status: "Success"
- *                   cantidad: 2
- *                   articulos:
- *                     - titulo: "Artículo 1"
- *                       contenido: "Contenido 1"
- *                       fecha: "2023-05-20T12:00:00.000Z"
- *                       imagen: "default.png"
- *                     - titulo: "Artículo 2"
- *                       contenido: "Contenido 2"
- *                       fecha: "2023-05-19T12:00:00.000Z"
- *                       imagen: "imagen2.jpg"
- *               respuestaConCantidad:
- *                 value:
- *                   status: "Success"
- *                   cantidad: 1
- *                   articulos:
- *                     - titulo: "Últimas noticias"
- *                       contenido: "Contenido de noticias"
- *                       fecha: "2023-05-21T10:30:00.000Z"
- *                       imagen: "noticias.png"
  *       404:
  *         description: No se encontraron artículos
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "Error"
- *                 mensaje:
- *                   type: string
- *                   example: "No se han encontrado articulos"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Error interno del servidor
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "Error"
- *                 error:
- *                   type: string
- *                   example: "Mensaje de error detallado"
+ *               $ref: '#/components/schemas/Error'
  */
-const ConsultaArticulos = async (req, res) => {
+const FiltrarArticulos = async (req, res) => {
   try {
-    let cantidad = req.query.cantidad;
-    let query = {};
-    if (cantidad) {
-      query = Articulo.find({}).sort({ fecha: -1 }).limit(parseInt(cantidad));
-    } else {
-      query = Articulo.find({}).sort({ fecha: -1 });
+    const filtros = {};
+
+    if (req.query.titulo) {
+      filtros.titulo = { $regex: req.query.titulo, $options: "i" };
     }
 
-    let articulos = await query.exec();
+    if (req.query.contenido) {
+      filtros.contenido = { $regex: req.query.contenido, $options: "i" };
+    }
 
-    if (!articulos) {
+    if (req.query.fecha) {
+      filtros.fecha = req.query.fecha;
+    }
+
+    if (req.query.imagen) {
+      filtros.imagen = req.query.imagen;
+    }
+
+    let query = Articulo.find(filtros).sort({ fecha: -1 });
+
+    if (req.query.cantidad) {
+      query = query.limit(parseInt(req.query.cantidad));
+    }
+
+    const articulos = await query.exec();
+
+    if (!articulos || articulos.length === 0) {
       return res.status(404).json({
         status: "Error",
-        mensaje: "No se han encontrado articulos",
+        mensaje: "No se han encontrado articulos que coincidan con los filtros",
       });
     }
 
-    //OK
     return res.status(200).json({
       status: "Success",
       cantidad: articulos.length,
@@ -263,7 +259,7 @@ const ConsultaArticulos = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "Error",
-      mensaje: error.message,
+      mensaje: "Error en el servidor: " + error.message,
     });
   }
 };
@@ -344,41 +340,33 @@ const ObtenerArticulo = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/{id}:
- *   delete:
- *     summary: Eliminar un artículo por su ID
- *     tags: [Artículos]
- *     description: Elimina un artículo específico de la base de datos usando su ID
+ * /api/articulo/imagen/{imagen}:
+ *   get:
+ *     summary: Obtener la imagen de un artículo por su nombre
+ *     tags:
+ *       - Artículos
+ *     description: Devuelve la imagen asociada a un artículo.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: imagen
  *         required: true
  *         schema:
  *           type: string
- *           format: mongo-id
- *           example: "507f1f77bcf86cd799439011"
- *         description: ID del artículo a eliminar
+ *         description: "Nombre de la imagen (ejemplo: 'foto.jpg')"
  *     responses:
  *       200:
- *         description: Artículo eliminado exitosamente
+ *         description: Imagen encontrada y enviada exitosamente
  *         content:
- *           application/json:
+ *           image/png:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "Success"
- *                 articuloEliminado:
- *                   $ref: '#/components/schemas/Articulo'
- *             examples:
- *               respuestaExitosa:
- *                 value:
- *                   status: "Success"
- *                   articuloEliminadoId: "507f1f77bcf86cd799439011"
- 
+ *               type: string
+ *               format: binary
+ *           image/jpeg:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       404:
- *         description: Artículo no encontrado
+ *         description: Imagen no encontrada
  *         content:
  *           application/json:
  *             schema:
@@ -386,71 +374,30 @@ const ObtenerArticulo = async (req, res) => {
  *               properties:
  *                 status:
  *                   type: string
- *                   example: "Error"
  *                 mensaje:
  *                   type: string
- *                   example: "No se ha encontrado el articulo a eliminar"
- *       500:
- *         description: Error interno del servidor
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "Error"
- *                 mensaje:
- *                   type: string
- *                   example: "Error al eliminar el artículo"
  */
-const EliminarArticulo = async (req, res) => {
-  try {
-    let id = req.params.id;
-    let articulo = await Articulo.findById(id).exec();
-    if (!articulo) {
+const ObtenerImagen = (req, res) => {
+  let file = req.params.imagen;
+  let ruta = "./public/images/articulos/" + file;
+  // Verificar si el archivo existe
+  fs.stat(ruta, (error) => {
+    if (error) {
       return res.status(404).json({
         status: "Error",
-        mensaje: "No se ha encontrado el articulo",
+        mensaje: "No se ha encontrado la imagen",
       });
     }
-
-    let articuloEliminado = await Articulo.findOneAndDelete({ _id: id }).exec();
-    if (!articuloEliminado) {
-      return res.status(404).json({
-        status: "Error",
-        mensaje: "No se ha encontrado el articulo a eliminar",
-      });
-    }
-
-    // Eliminar la imagen anterior si existe
-    try {
-      EliminarImagen(articulo.imagen);
-    } catch (error) {
-      return res.status(500).json({
-        status: "Error",
-        mensaje: "Error al eliminar la iamgen: " + error.message,
-      });
-    }
-
-    //OK
-    return res.status(200).json({
-      status: "Success",
-      articuloEliminado: articuloEliminado.titulo,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: "Error",
-      mensaje: error.message,
-    });
-  }
+    // Si existe, enviar el archivo
+    res.sendFile(path.resolve(ruta));
+  });
 };
 
 /**
  * @swagger
  * /api/articulo/{id}:
  *   put:
- *     summary: Actualizar un artículo existente por su ID
+ *     summary: Actualizar un artículo por su ID
  *     tags: [Artículos]
  *     description: Actualiza un artículo específico de la base de datos usando su ID
  *     parameters:
@@ -565,7 +512,7 @@ const ActualizarArticulo = async (req, res) => {
  * @swagger
  * /api/articulo/imagen/{id}:
  *   put:
- *     summary: Subir y asociar una imagen a un artículo existente
+ *     summary: Actualizar la imagen a un artículo por su ID
  *     tags: [Artículos]
  *     description: Valida, actualiza y reemplaza la imagen de un artículo por su ID. También elimina la imagen anterior del servidor si existe.
  *     parameters:
@@ -679,33 +626,23 @@ const ActualizarImagen = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/imagen/{imagen}:
- *   get:
- *     summary: Obtener imagen de un artículo
- *     tags:
- *       - Artículos
- *     description: Devuelve el archivo de imagen asociado a un artículo si existe.
+ * /api/articulo/{id}:
+ *   delete:
+ *     summary: Eliminar un artículo por su ID
+ *     tags: [Artículos]
+ *     description: Elimina un artículo específico de la base de datos usando su ID
  *     parameters:
  *       - in: path
- *         name: imagen
+ *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: "Nombre del archivo de imagen (ejemplo: 'foto.jpg')"
+ *           format: mongo-id
+ *           example: "507f1f77bcf86cd799439011"
+ *         description: ID del artículo a eliminar
  *     responses:
  *       200:
- *         description: Imagen encontrada y enviada exitosamente
- *         content:
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
- *           image/jpeg:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Imagen no encontrada
+ *         description: Artículo eliminado exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -713,31 +650,89 @@ const ActualizarImagen = async (req, res) => {
  *               properties:
  *                 status:
  *                   type: string
+ *                   example: "Success"
+ *                 articuloEliminado:
+ *                   $ref: '#/components/schemas/Articulo'
+ *             examples:
+ *               respuestaExitosa:
+ *                 value:
+ *                   status: "Success"
+ *                   articuloEliminadoId: "507f1f77bcf86cd799439011"
+ 
+ *       404:
+ *         description: Artículo no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Error"
  *                 mensaje:
  *                   type: string
+ *                   example: "No se ha encontrado el articulo a eliminar"
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "Error"
+ *                 mensaje:
+ *                   type: string
+ *                   example: "Error al eliminar el artículo"
  */
-
-const ObtenerImagen = (req, res) => {
-  let file = req.params.imagen;
-  let ruta = "./public/images/articulos/" + file;
-  // Verificar si el archivo existe
-  fs.stat(ruta, (error) => {
-    if (error) {
+const EliminarArticulo = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let articulo = await Articulo.findById(id).exec();
+    if (!articulo) {
       return res.status(404).json({
         status: "Error",
-        mensaje: "No se ha encontrado la imagen",
+        mensaje: "No se ha encontrado el articulo",
       });
     }
-    // Si existe, enviar el archivo
-    res.sendFile(path.resolve(ruta));
-  });
+
+    let articuloEliminado = await Articulo.findOneAndDelete({ _id: id }).exec();
+    if (!articuloEliminado) {
+      return res.status(404).json({
+        status: "Error",
+        mensaje: "No se ha encontrado el articulo a eliminar",
+      });
+    }
+
+    // Eliminar la imagen anterior si existe
+    try {
+      EliminarImagen(articulo.imagen);
+    } catch (error) {
+      return res.status(500).json({
+        status: "Error",
+        mensaje: "Error al eliminar la iamgen: " + error.message,
+      });
+    }
+
+    //OK
+    return res.status(200).json({
+      status: "Success",
+      articuloEliminado: articuloEliminado.titulo,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "Error",
+      mensaje: error.message,
+    });
+  }
 };
 
 module.exports = {
   ActualizarArticulo,
-  ConsultaArticulos,
   EliminarArticulo,
   ActualizarImagen,
+  FiltrarArticulos,
   ObtenerArticulo,
   ObtenerImagen,
   CrearArticulo,

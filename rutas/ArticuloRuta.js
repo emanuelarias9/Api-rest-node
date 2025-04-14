@@ -18,9 +18,9 @@ const ArticuloController = require("../controllers/ArticuloController");
  *   description: Endpoints para gestión de artículos
  */
 router.post("/articulo", ArticuloController.CrearArticulo);
-router.get("/articulos", ArticuloController.ConsultaArticulos);
+router.get("/articulos", ArticuloController.FiltrarArticulos);
 router.get("/articulo/:id", ArticuloController.ObtenerArticulo);
-router.delete("/articulo/:id", ArticuloController.EliminarArticulo);
+router.get("/articulo/imagen/:imagen", ArticuloController.ObtenerImagen);
 router.put(
   "/articulo/:id",
   [uploads.single("file")],
@@ -31,5 +31,5 @@ router.put(
   [uploads.single("file")],
   ArticuloController.ActualizarImagen
 );
-router.get("/articulo/imagen/:imagen", ArticuloController.ObtenerImagen);
+router.delete("/articulo/:id", ArticuloController.EliminarArticulo);
 module.exports = router;
