@@ -41,7 +41,7 @@ const Articulo = require("../models/Articulo");
 
 /**
  * @swagger
- * /api/articulo:
+ * /api/articulos:
  *   post:
  *     summary: Crear un nuevo artículo
  *     tags: [Artículos]
@@ -266,7 +266,7 @@ const FiltrarArticulos = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/{id}:
+ * /api/articulos/{id}:
  *   get:
  *     summary: Obtener un artículo por su ID
  *     tags: [Artículos]
@@ -340,7 +340,7 @@ const ObtenerArticulo = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/imagen/{imagen}:
+ * /api/articulos/imagen/{imagen}:
  *   get:
  *     summary: Obtener la imagen de un artículo por su nombre
  *     tags:
@@ -395,7 +395,7 @@ const ObtenerImagen = (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/{id}:
+ * /api/articulos/{id}:
  *   put:
  *     summary: Actualizar un artículo por su ID
  *     tags: [Artículos]
@@ -510,7 +510,7 @@ const ActualizarArticulo = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/imagen/{id}:
+ * /api/articulos/imagen/{id}:
  *   put:
  *     summary: Actualizar la imagen a un artículo por su ID
  *     tags: [Artículos]
@@ -626,7 +626,7 @@ const ActualizarImagen = async (req, res) => {
 
 /**
  * @swagger
- * /api/articulo/{id}:
+ * /api/articulos/{id}:
  *   delete:
  *     summary: Eliminar un artículo por su ID
  *     tags: [Artículos]

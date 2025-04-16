@@ -17,19 +17,19 @@ const ArticuloController = require("../controllers/ArticuloController");
  *   name: Artículos
  *   description: Endpoints para gestión de artículos
  */
-router.post("/articulo", ArticuloController.CrearArticulo);
+router.post("/articulos", ArticuloController.CrearArticulo);
 router.get("/articulos", ArticuloController.FiltrarArticulos);
-router.get("/articulo/:id", ArticuloController.ObtenerArticulo);
-router.get("/articulo/imagen/:imagen", ArticuloController.ObtenerImagen);
+router.get("/articulos/:id", ArticuloController.ObtenerArticulo);
+router.get("/articulos/imagen/:imagen", ArticuloController.ObtenerImagen);
 router.put(
-  "/articulo/:id",
+  "/articulos/:id",
   [uploads.single("file")],
   ArticuloController.ActualizarArticulo
 );
 router.put(
-  "/articulo/imagen/:id",
+  "/articulos/imagen/:id",
   [uploads.single("file")],
   ArticuloController.ActualizarImagen
 );
-router.delete("/articulo/:id", ArticuloController.EliminarArticulo);
+router.delete("/articulos/:id", ArticuloController.EliminarArticulo);
 module.exports = router;
