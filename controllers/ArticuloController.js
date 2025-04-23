@@ -158,7 +158,7 @@ const CrearArticulo = async (req, res) => {
  *   get:
  *     summary: Listar o filtrar artículos
  *     tags: [Artículos]
- *     description: Retorna todos los artículos o aquellos que coincidan con los filtros opcionales enviados por query string.
+ *     description: Retorna todos los artículos si no se envían filtros o aquellos que coincidan con los filtros opcionales enviados por query string (lógica OR).
  *     parameters:
  *       - in: query
  *         name: titulo
@@ -218,23 +218,27 @@ const CrearArticulo = async (req, res) => {
  */
 const FiltrarArticulos = async (req, res) => {
   try {
-    const filtros = {};
+    const params = [];
 
     if (req.query.titulo) {
-      filtros.titulo = { $regex: req.query.titulo, $options: "i" };
+      params.push({ titulo: { $regex: req.query.titulo, $options: "i" } });
     }
 
     if (req.query.contenido) {
-      filtros.contenido = { $regex: req.query.contenido, $options: "i" };
+      params.push({
+        contenido: { $regex: req.query.contenido, $options: "i" },
+      });
     }
 
     if (req.query.fecha) {
-      filtros.fecha = req.query.fecha;
+      params.push({ fecha: req.query.fecha });
     }
 
     if (req.query.imagen) {
-      filtros.imagen = req.query.imagen;
+      params.push({ imagen: req.query.imagen });
     }
+
+    const filtros = params.length > 0 ? { $or: params } : {};
 
     let query = Articulo.find(filtros).sort({ fecha: -1 });
 
