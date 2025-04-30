@@ -460,7 +460,6 @@ const ActualizarArticulo = async (req, res) => {
   let articuloId = req.params.id;
   let parametros = req.body;
   let file = req.file;
-  console.log(parametros);
   // Validación de datos
   try {
     ValidarArticulo(parametros);
@@ -478,9 +477,8 @@ const ActualizarArticulo = async (req, res) => {
       {
         titulo: parametros.titulo,
         contenido: parametros.contenido,
-        imagen: file.filename,
       },
-      { new: false } // Cambiar a true si se desea el documento actualizado
+      { new: true } // Cambiar a true si se desea el documento actualizado
     ).exec();
 
     if (!articuloActualizado) {
@@ -489,16 +487,7 @@ const ActualizarArticulo = async (req, res) => {
         mensaje: "No se ha encontrado el articulo a actualizar",
       });
     }
-    // Eliminar la imagen anterior si existe
-    console.log(articuloActualizado.imagen);
-    try {
-      EliminarImagen(articuloActualizado.imagen);
-    } catch (error) {
-      return res.status(500).json({
-        status: "Error",
-        mensaje: "Error al eliminar la imagen: " + error.message,
-      });
-    }
+
     //OK
     return res.status(200).json({
       status: "Success",

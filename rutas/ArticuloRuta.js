@@ -21,11 +21,7 @@ router.post("/articulos", ArticuloController.CrearArticulo);
 router.get("/articulos", ArticuloController.FiltrarArticulos);
 router.get("/articulos/:id", ArticuloController.ObtenerArticulo);
 router.get("/articulos/imagen/:imagen", ArticuloController.ObtenerImagen);
-router.put(
-  "/articulos/:id",
-  [uploads.single("file")],
-  ArticuloController.ActualizarArticulo
-);
+router.put("/articulos/:id", ArticuloController.ActualizarArticulo);
 router.put(
   "/articulos/imagen/:id",
   [uploads.single("file")],
