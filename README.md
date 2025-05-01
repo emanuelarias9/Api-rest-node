@@ -19,7 +19,7 @@ API RESTful para la gestión de artículos de un blog, desarrollada con **Node.j
 
 Disponible en:
 ```
-https://api-blog-b0fd.onrender.com/api-docs/
+[api-blog-b0fd.onrender.com/api-docs/](https://api-blog-b0fd.onrender.com/api-docs/)
 ```
 
 Incluye descripción de:
@@ -32,15 +32,15 @@ Incluye descripción de:
 
 ## 📦 Endpoints principales
 
-| Método | Ruta                             | Descripción                              |
-|--------|----------------------------------|------------------------------------------|
-| POST   | `/api/articulo`                  | Crear un artículo                        |
-| GET    | `/api/articulos`                 | Listar o filtrar artículos               |
-| GET    | `/api/articulo/:id`              | Obtener artículo por ID                  |
-| GET    | `/api/articulo/imagen/:imagen`   | Obtener imagen del artículo              |
-| PUT    | `/api/articulo/:id`              | Actualizar artículo y su imagen          |
-| PUT    | `/api/articulo/imagen/:id`       | Actualizar solo la imagen                |
-| DELETE | `/api/articulo/:id`              | Eliminar artículo e imagen asociada      |
+| Método | Ruta                              | Descripción                              |
+|--------|-----------------------------------|------------------------------------------|
+| POST   | `/api/articulos`                  | Crear un artículo                        |
+| GET    | `/api/articulos`                  | Listar o filtrar artículos               |
+| GET    | `/api/articulos/:id`              | Obtener artículo por ID                  |
+| GET    | `/api/articulos/imagen/:imagen`   | Obtener imagen del artículo              |
+| PUT    | `/api/articulos/:id`              | Actualizar artículo y su imagen          |
+| PUT    | `/api/articulos/imagen/:id`       | Actualizar solo la imagen                |
+| DELETE | `/api/articulos/:id`              | Eliminar artículo e imagen asociada      |
 
 ---
 > Desarrollado por Emanuel Arias💻 (emanuelarias9@gmail.com)
