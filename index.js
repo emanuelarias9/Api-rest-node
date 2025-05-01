@@ -21,7 +21,7 @@ const swaggerOptions = {
       description:
         "Documentación para la Api Rest de mi Blog creada con NodeJS, expressJS y mongoose",
     },
-    servers: [{ url: `http://localhost:${port}` }],
+    servers: [{ url: process.env.HOST_URL }],
   },
   apis: ["./rutas/*.js", "./controllers/*.js"],
 };
@@ -43,5 +43,5 @@ app.use(process.env.URL_API_BASE, articuloRuta);
 // Iniciar servidor y escuchar rutas
 app.listen(port, () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
-  console.log(`Documentación disponible en http://localhost:${port}/api-docs`);
+  console.log(`Documentación disponible en ${process.env.HOST_URL}/api-docs`);
 });
