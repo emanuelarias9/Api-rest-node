@@ -17,10 +17,7 @@ API RESTful para la gestión de artículos de un blog, desarrollada con **Node.j
 
 ## 📚 Documentación Swagger
 
-Disponible en:
-```
-[api-blog](https://api-blog-b0fd.onrender.com/api-docs/)
-```
+Disponible en: [api-blog](https://api-blog-b0fd.onrender.com/api-docs/)
 
 Incluye descripción de:
 - Rutas y métodos HTTP (`GET`, `POST`, `PUT`, `DELETE`)
