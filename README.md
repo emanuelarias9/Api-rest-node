@@ -19,7 +19,7 @@ API RESTful para la gestión de artículos de un blog, desarrollada con **Node.j
 
 Disponible en: 
 ```
- [(https://api-blog-b0fd.onrender.com/api-docs/)](https://api-blog-b0fd.onrender.com/api-docs/)
+ https://api-blog-b0fd.onrender.com/api-docs/
  ```
 Incluye descripción de:
 - Rutas y métodos HTTP (`GET`, `POST`, `PUT`, `DELETE`)
