@@ -19,7 +19,7 @@ API RESTful para la gestión de artículos de un blog, desarrollada con **Node.j
 
 Disponible en:
 ```
-http://localhost:3900/api-docs
+https://api-blog-b0fd.onrender.com/api-docs/
 ```
 
 Incluye descripción de:
