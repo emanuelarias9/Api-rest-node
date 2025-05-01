@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { conexion } = require("./database/conexion");
 const express = require("express");
 const cors = require("cors");
@@ -8,7 +9,7 @@ conexion();
 
 // Crear servidor node
 const app = express();
-const port = 3900;
+const port = process.env.PORT || 3900;
 
 // Configuración de Swagger
 const swaggerOptions = {
@@ -37,7 +38,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Rutas de la API
 const articuloRuta = require("./rutas/ArticuloRuta");
-app.use("/api", articuloRuta);
+app.use(process.env.URL_API_BASE, articuloRuta);
 
 // Iniciar servidor y escuchar rutas
 app.listen(port, () => {

@@ -1,3 +1,4 @@
 # dependencies
 /node_modules
 /public/images
+.env
