@@ -124,7 +124,8 @@ const CrearArticulo = async (req, res) => {
     ValidarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
-      status: "Error",
+      status: "Bad Request",
+      statusCode: 400,
       mensaje: error.message,
     });
   }
@@ -134,19 +135,22 @@ const CrearArticulo = async (req, res) => {
 
     if (!articuloGuardado) {
       return res.status(400).json({
-        status: "Error",
+        status: "Bad Request",
+        statusCode: 400,
         mensaje: "Error al guardar el artículo",
       });
     }
 
     //OK
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       articulo: articuloGuardado,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: "Error interno del servidor: " + error.message,
     });
   }
@@ -247,22 +251,25 @@ const FiltrarArticulos = async (req, res) => {
     }
 
     const articulos = await query.exec();
-
+    console.log("404", 404);
     if (!articulos || articulos.length === 0) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se han encontrado articulos que coincidan con los filtros",
       });
     }
 
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       cantidad: articulos.length,
       articulos,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: "Error en el servidor: " + error.message,
     });
   }
@@ -324,19 +331,22 @@ const ObtenerArticulo = async (req, res) => {
     let articulo = await Articulo.findById(id).exec();
     if (!articulo) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado el articulo",
       });
     }
 
     //OK
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       articulo,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: error.message,
     });
   }
@@ -388,7 +398,8 @@ const ObtenerImagen = (req, res) => {
   fs.stat(ruta, (error) => {
     if (error) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado la imagen",
       });
     }
@@ -465,7 +476,8 @@ const ActualizarArticulo = async (req, res) => {
     ValidarArticulo(parametros);
   } catch (error) {
     return res.status(400).json({
-      status: "Error",
+      status: "Bad Request",
+      statusCode: 400,
       mensaje: "Error al Validar Articulo " + error.message,
     });
   }
@@ -483,19 +495,22 @@ const ActualizarArticulo = async (req, res) => {
 
     if (!articuloActualizado) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado el articulo a actualizar",
       });
     }
 
     //OK
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       articuloActualizado: parametros.titulo,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: error.message,
     });
   }
@@ -568,14 +583,16 @@ const ActualizarImagen = async (req, res) => {
     ValidarImagen(file);
   } catch (error) {
     return res.status(400).json({
-      status: "Error",
+      status: "Bad Request",
+      statusCode: 400,
       mensaje: error.message,
     });
   }
   let articulo = await Articulo.findById(articuloId).exec();
   if (!articulo) {
     return res.status(404).json({
-      status: "Error",
+      status: "Not Found",
+      statusCode: 404,
       mensaje: "No se ha encontrado el articulo",
     });
   }
@@ -589,7 +606,8 @@ const ActualizarImagen = async (req, res) => {
 
     if (!articuloActualizado) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado el articulo a actualizar",
       });
     }
@@ -599,19 +617,22 @@ const ActualizarImagen = async (req, res) => {
       EliminarImagen(articulo.imagen);
     } catch (error) {
       return res.status(500).json({
-        status: "Error",
+        status: "Internal Server Error",
+        statusCode: 500,
         mensaje: "Error al eliminar la iamgen: " + error.message,
       });
     }
 
     //OK
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       articuloActualizado,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: error.message,
     });
   }
@@ -685,7 +706,8 @@ const EliminarArticulo = async (req, res) => {
     let articulo = await Articulo.findById(id).exec();
     if (!articulo) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado el articulo",
       });
     }
@@ -693,7 +715,8 @@ const EliminarArticulo = async (req, res) => {
     let articuloEliminado = await Articulo.findOneAndDelete({ _id: id }).exec();
     if (!articuloEliminado) {
       return res.status(404).json({
-        status: "Error",
+        status: "Not Found",
+        statusCode: 404,
         mensaje: "No se ha encontrado el articulo a eliminar",
       });
     }
@@ -703,19 +726,22 @@ const EliminarArticulo = async (req, res) => {
       EliminarImagen(articulo.imagen);
     } catch (error) {
       return res.status(500).json({
-        status: "Error",
+        status: "Internal Server Error",
+        statusCode: 500,
         mensaje: "Error al eliminar la iamgen: " + error.message,
       });
     }
 
     //OK
     return res.status(200).json({
-      status: "Success",
+      status: "OK",
+      statusCode: 200,
       articuloEliminado: articuloEliminado.titulo,
     });
   } catch (error) {
     return res.status(500).json({
-      status: "Error",
+      status: "Internal Server Error",
+      statusCode: 500,
       mensaje: error.message,
     });
   }
